@@ -5,11 +5,11 @@ import (
 )
 
 type UserCredentials struct {
-	Name     string `json:"name"`
-	UserName string `json:"userName"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	Locale   string `json:"lacale"`
+	Name             string `json:"name"`
+	UserName         string `json:"userName"`
+	Email            string `json:"email"`
+	Password         string `json:"password"`
+	ConfirmationCode string `json:"confirmationCode"`
 }
 
 type CognitoClient interface {

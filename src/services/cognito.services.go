@@ -1,4 +1,4 @@
-package services
+package cognitoServices
 
 import (
 	"log"
@@ -12,12 +12,12 @@ import (
 	cognito "github.com/aws/aws-sdk-go/service/cognitoidentityprovider"
 )
 
-type AwsCognitoClient struct {
+type awsCognitoClient struct {
 	CognitoClient *cognito.CognitoIdentityProvider
 	AppClientId   string
 }
 
-func NewCognitoClient(cognitoRegion string, cognitoAppClientID string) *AwsCognitoClient {
+func NewCognitoClient(cognitoRegion string, cognitoAppClientID string) *awsCognitoClient {
 	conf := &aws.Config{Region: aws.String(cognitoRegion)}
 	sess, err := session.NewSession(conf)
 	if err != nil {
@@ -25,13 +25,13 @@ func NewCognitoClient(cognitoRegion string, cognitoAppClientID string) *AwsCogni
 	}
 	client := cognito.New(sess)
 
-	return &AwsCognitoClient{
+	return &awsCognitoClient{
 		CognitoClient: client,
 		AppClientId:   cognitoAppClientID,
 	}
 }
 
-func (cognitoClient *AwsCognitoClient) SignUp(userInformation *models.UserCredentials) (error, string) {
+func (cognitoClient *awsCognitoClient) SignUp(userInformation *models.UserCredentials) (error, *cognito.SignUpOutput) {
 	secretHash := utils.CreateSecretHash(userInformation)
 
 	// Create the signUp object
@@ -51,7 +51,7 @@ func (cognitoClient *AwsCognitoClient) SignUp(userInformation *models.UserCreden
 			},
 			{
 				Name:  aws.String("locale"),
-				Value: aws.String(userInformation.Locale),
+				Value: aws.String("es_CO"),
 			},
 			{
 				Name:  aws.String("updated_at"),
@@ -63,18 +63,18 @@ func (cognitoClient *AwsCognitoClient) SignUp(userInformation *models.UserCreden
 	// SingUp the user
 	result, err := cognitoClient.CognitoClient.SignUp(user)
 	if err != nil {
-		return err, ""
+		return err, nil
 	}
-	return nil, result.String()
+	return nil, result
 }
 
-func (cognitoClient *AwsCognitoClient) ConfirmSignUp(userInformation *models.UserCredentials, verificationCode string) (error, bool) {
+func (cognitoClient *awsCognitoClient) ConfirmUser(userInformation *models.UserCredentials, confirmationCode string) (error, bool) {
 	secretHash := utils.CreateSecretHash(userInformation)
 
 	confirmUser := &cognito.ConfirmSignUpInput{
 		ClientId:         aws.String(cognitoClient.AppClientId),
 		SecretHash:       aws.String(secretHash),
-		ConfirmationCode: aws.String(verificationCode),
+		ConfirmationCode: aws.String(confirmationCode),
 		Username:         aws.String(userInformation.UserName),
 	}
 	_, err := cognitoClient.CognitoClient.ConfirmSignUp(confirmUser)
@@ -84,7 +84,7 @@ func (cognitoClient *AwsCognitoClient) ConfirmSignUp(userInformation *models.Use
 	return nil, true
 }
 
-func (cognitoClient *AwsCognitoClient) SignIn(userInformation *models.UserCredentials) (error, *cognito.InitiateAuthOutput) {
+func (cognitoClient *awsCognitoClient) LogIn(userInformation *models.UserCredentials) (error, *cognito.InitiateAuthOutput) {
 	secretHash := utils.CreateSecretHash(userInformation)
 
 	confirmUser := &cognito.InitiateAuthInput{
