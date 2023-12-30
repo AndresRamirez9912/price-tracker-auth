@@ -20,21 +20,28 @@ func main() {
 		Locale:   "es_CO",
 	}
 
-	// SigUp the User
-	err, result := cognitoClient.SignUp(user)
-	if err != nil {
-		log.Fatalln("Signin failed", err)
-	}
-	fmt.Println("SignIn success:", result)
+	// // SigUp the User
+	// err, result := cognitoClient.SignUp(user)
+	// if err != nil {
+	// 	log.Fatalln("Signin failed", err)
+	// }
+	// fmt.Println("SignIn success:", result)
 
-	// Confirm the User
-	err, confirmed := cognitoClient.ConfirmSignUp(user, "516313")
+	// // Confirm the User
+	// err, confirmed := cognitoClient.ConfirmSignUp(user, "516313")
+	// if err != nil {
+	// 	log.Fatalln("Confirmation failed", err)
+	// }
+	// if confirmed {
+	// 	fmt.Println("The user was confirmed")
+	// } else {
+	// 	fmt.Println("The user could not confirm")
+	// }
+
+	// Sign In the user
+	err, signInResponse := cognitoClient.SignIn(user)
 	if err != nil {
-		log.Fatalln("Confirmation failed", err)
+		log.Fatalln("SignIn failed", err)
 	}
-	if confirmed {
-		fmt.Println("The user was confirmed")
-	} else {
-		fmt.Println("The user could not confirm")
-	}
+	fmt.Println("The user could sign in successfully ", *signInResponse.AuthenticationResult.IdToken)
 }

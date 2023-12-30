@@ -9,12 +9,11 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/cognitoidentityprovider"
 	cognito "github.com/aws/aws-sdk-go/service/cognitoidentityprovider"
 )
 
 type AwsCognitoClient struct {
-	CognitoClient *cognitoidentityprovider.CognitoIdentityProvider
+	CognitoClient *cognito.CognitoIdentityProvider
 	AppClientId   string
 }
 
@@ -36,12 +35,12 @@ func (cognitoClient *AwsCognitoClient) SignUp(userInformation *models.UserCreden
 	secretHash := utils.CreateSecretHash(userInformation)
 
 	// Create the signUp object
-	user := &cognitoidentityprovider.SignUpInput{
+	user := &cognito.SignUpInput{
 		Username:   aws.String(userInformation.UserName),
 		Password:   aws.String(userInformation.Password),
 		ClientId:   aws.String(cognitoClient.AppClientId),
 		SecretHash: aws.String(secretHash),
-		UserAttributes: []*cognitoidentityprovider.AttributeType{
+		UserAttributes: []*cognito.AttributeType{
 			{
 				Name:  aws.String("name"),
 				Value: aws.String(userInformation.Name),
@@ -72,7 +71,7 @@ func (cognitoClient *AwsCognitoClient) SignUp(userInformation *models.UserCreden
 func (cognitoClient *AwsCognitoClient) ConfirmSignUp(userInformation *models.UserCredentials, verificationCode string) (error, bool) {
 	secretHash := utils.CreateSecretHash(userInformation)
 
-	confirmUser := &cognitoidentityprovider.ConfirmSignUpInput{
+	confirmUser := &cognito.ConfirmSignUpInput{
 		ClientId:         aws.String(cognitoClient.AppClientId),
 		SecretHash:       aws.String(secretHash),
 		ConfirmationCode: aws.String(verificationCode),
@@ -83,4 +82,23 @@ func (cognitoClient *AwsCognitoClient) ConfirmSignUp(userInformation *models.Use
 		return err, false
 	}
 	return nil, true
+}
+
+func (cognitoClient *AwsCognitoClient) SignIn(userInformation *models.UserCredentials) (error, *cognito.InitiateAuthOutput) {
+	secretHash := utils.CreateSecretHash(userInformation)
+
+	confirmUser := &cognito.InitiateAuthInput{
+		AuthFlow: aws.String("USER_PASSWORD_AUTH"),
+		ClientId: aws.String(cognitoClient.AppClientId),
+		AuthParameters: aws.StringMap(map[string]string{
+			"USERNAME":    userInformation.UserName,
+			"PASSWORD":    userInformation.Password,
+			"SECRET_HASH": secretHash,
+		}),
+	}
+	signInResponse, err := cognitoClient.CognitoClient.InitiateAuth(confirmUser)
+	if err != nil {
+		return err, nil
+	}
+	return nil, signInResponse
 }
