@@ -6,23 +6,22 @@ import (
 	"log"
 	"net/http"
 	apiModels "price-tracker-authentication/src/Api/models"
-	"price-tracker-authentication/src/models"
 )
 
-func GetUserBodyRequest(r *http.Request) (*models.UserCredentials, error) {
+func GetUserBodyRequest(r *http.Request, model any) error {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		log.Fatal("Error getting the body in SignUp request", err)
-		return nil, err
+		log.Fatal("Error getting the body in request", err)
+		return err
 	}
 
-	user := &models.UserCredentials{}
+	user := model
 	err = json.Unmarshal(body, user)
 	if err != nil {
-		log.Fatal("Error decoding the body in SignUp request", err)
-		return nil, err
+		log.Fatal("Error decoding the body in request", err)
+		return err
 	}
-	return user, nil
+	return nil
 }
 
 func SendErrorResponse(w http.ResponseWriter, err error) {
@@ -37,8 +36,8 @@ func SendErrorResponse(w http.ResponseWriter, err error) {
 	return
 }
 
-func SendSuccessResponse(w http.ResponseWriter, response interface{}) {
-	w.WriteHeader(http.StatusCreated)
+func SendSuccessResponse(w http.ResponseWriter, response any, statusCode int) {
+	w.WriteHeader(statusCode)
 	successResponse := &apiModels.SuccesResponse{
 		Success:  true,
 		Response: response,

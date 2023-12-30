@@ -79,6 +79,7 @@ func (cognitoClient *awsCognitoClient) ConfirmUser(userInformation *models.UserC
 	}
 	_, err := cognitoClient.CognitoClient.ConfirmSignUp(confirmUser)
 	if err != nil {
+		log.Println("Error verifying the user", err)
 		return err, false
 	}
 	return nil, true
@@ -98,7 +99,28 @@ func (cognitoClient *awsCognitoClient) LogIn(userInformation *models.UserCredent
 	}
 	signInResponse, err := cognitoClient.CognitoClient.InitiateAuth(confirmUser)
 	if err != nil {
+		log.Println("Error trying to login the user", err)
 		return err, nil
 	}
 	return nil, signInResponse
+}
+
+func (cognitoClient *awsCognitoClient) ChangePassword(userInformation *models.UserCredentials, newPassword string) (error, bool) {
+	err, logInResposne := cognitoClient.LogIn(userInformation)
+	if err != nil {
+		log.Println("Error Login the user in change password flow", err)
+		return err, false
+	}
+
+	changePassword := &cognito.ChangePasswordInput{
+		PreviousPassword: aws.String(userInformation.Password),
+		ProposedPassword: aws.String(newPassword),
+		AccessToken:      aws.String(*logInResposne.AuthenticationResult.AccessToken),
+	}
+	_, err = cognitoClient.CognitoClient.ChangePassword(changePassword)
+	if err != nil {
+		log.Println("Error changing the user's password", err)
+		return err, false
+	}
+	return nil, true
 }

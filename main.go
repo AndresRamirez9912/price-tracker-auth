@@ -14,6 +14,7 @@ func main() {
 	r.Post("/signUp", handlers.HandleSignUpUser)
 	r.Post("/logIn", handlers.HandleLogInUser)
 	r.Post("/verifyUser", handlers.HandleVerifyUser)
+	r.Post("/changePassword", handlers.HandleChangePassword)
 
 	//Start server
 	log.Println("Server starting at port 3000")
