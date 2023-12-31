@@ -17,3 +17,17 @@ type ChangePasswordRequest struct {
 	UserInformation *models.UserCredentials `json:"userInformation"`
 	NewPassword     string                  `json:"newPassword"`
 }
+
+type Verify2FAToken struct {
+	AccessToken        string `json:"accessToken"`
+	FriendlyDeviceName string `json:"friendlyDeviceName"`
+	Session            string `json:"session"`
+	UserCode           string `json:"userCode"`
+}
+
+type RespondChallenge struct {
+	ChallengeName string `json:"challengeName"`
+	Session       string `json:"session"`
+	UserName      string `json:"userName"`
+	Token2FA      string `json:"token2FA"`
+}

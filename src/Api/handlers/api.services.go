@@ -115,3 +115,67 @@ func HandleSignOut(w http.ResponseWriter, r *http.Request) {
 
 	utils.SendSuccessResponse(w, signOutResponse, http.StatusOK)
 }
+
+func HandleSet2FA(w http.ResponseWriter, r *http.Request) {
+	accessToken := r.URL.Query().Get("accessToken")
+
+	cognitoClient := cognitoServices.NewCognitoClient("us-east-2", "5k1nhiok061928quq6ql8lcg96")
+	err, set2FAResponse := cognitoClient.Set2FAPreference(accessToken)
+
+	w.Header().Add("content-Type", "application/json")
+	if err != nil {
+		utils.SendErrorResponse(w, err)
+		return
+	}
+
+	utils.SendSuccessResponse(w, set2FAResponse, http.StatusOK)
+}
+
+func HandleAssociateSoftwareToken(w http.ResponseWriter, r *http.Request) {
+	accessToken := r.URL.Query().Get("accessToken")
+
+	cognitoClient := cognitoServices.NewCognitoClient("us-east-2", "5k1nhiok061928quq6ql8lcg96")
+	err, associateResponse := cognitoClient.AssociateSoftwareToken(accessToken)
+
+	w.Header().Add("content-Type", "application/json")
+	if err != nil {
+		utils.SendErrorResponse(w, err)
+		return
+	}
+
+	utils.SendSuccessResponse(w, associateResponse, http.StatusOK)
+}
+
+func HandleVerifyToken(w http.ResponseWriter, r *http.Request) {
+	verifyToken := &apiModels.Verify2FAToken{}
+	err := utils.GetUserBodyRequest(r, verifyToken)
+	defer r.Body.Close()
+
+	cognitoClient := cognitoServices.NewCognitoClient("us-east-2", "5k1nhiok061928quq6ql8lcg96")
+	err, associateResponse := cognitoClient.Verify2FAToken(verifyToken)
+
+	w.Header().Add("content-Type", "application/json")
+	if err != nil {
+		utils.SendErrorResponse(w, err)
+		return
+	}
+
+	utils.SendSuccessResponse(w, associateResponse, http.StatusOK)
+}
+
+func HandleRespondChallenge(w http.ResponseWriter, r *http.Request) {
+	respondChallenge := &apiModels.RespondChallenge{}
+	err := utils.GetUserBodyRequest(r, respondChallenge)
+	defer r.Body.Close()
+
+	cognitoClient := cognitoServices.NewCognitoClient("us-east-2", "5k1nhiok061928quq6ql8lcg96")
+	err, challengeResponse := cognitoClient.Respond2FAChallenge(respondChallenge)
+
+	w.Header().Add("content-Type", "application/json")
+	if err != nil {
+		utils.SendErrorResponse(w, err)
+		return
+	}
+
+	utils.SendSuccessResponse(w, challengeResponse, http.StatusOK)
+}

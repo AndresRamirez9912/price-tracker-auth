@@ -2,6 +2,7 @@ package cognitoServices
 
 import (
 	"log"
+	apiModels "price-tracker-authentication/src/Api/models"
 	"price-tracker-authentication/src/models"
 	"price-tracker-authentication/src/utils"
 	"strconv"
@@ -151,4 +152,69 @@ func (cognitoClient *awsCognitoClient) SignOut(accessToken string) (error, bool)
 		return err, false
 	}
 	return nil, true
+}
+
+func (cognitoClient *awsCognitoClient) Set2FAPreference(accessToken string) (error, bool) {
+	set2FA := &cognito.SetUserMFAPreferenceInput{
+		AccessToken: aws.String(accessToken),
+		SoftwareTokenMfaSettings: &cognito.SoftwareTokenMfaSettingsType{
+			Enabled:      aws.Bool(true),
+			PreferredMfa: aws.Bool(true),
+		},
+	}
+	_, err := cognitoClient.CognitoClient.SetUserMFAPreference(set2FA)
+	if err != nil {
+		log.Println("Error setting the 2FA method", err)
+		return err, false
+	}
+	return nil, true
+}
+
+func (cognitoClient *awsCognitoClient) AssociateSoftwareToken(accessToken string) (error, *cognito.AssociateSoftwareTokenOutput) {
+	associateToken := &cognito.AssociateSoftwareTokenInput{
+		AccessToken: aws.String(accessToken),
+	}
+	associateResponse, err := cognitoClient.CognitoClient.AssociateSoftwareToken(associateToken)
+	if err != nil {
+		log.Println("Error setting the 2FA method", err)
+		return err, nil
+	}
+	return nil, associateResponse
+}
+
+func (cognitoClient *awsCognitoClient) Verify2FAToken(verifyInformation *apiModels.Verify2FAToken) (error, *cognito.VerifySoftwareTokenOutput) {
+	verifyToken := &cognito.VerifySoftwareTokenInput{
+		AccessToken:        aws.String(verifyInformation.AccessToken),
+		UserCode:           aws.String(verifyInformation.UserCode),
+		FriendlyDeviceName: aws.String(verifyInformation.FriendlyDeviceName),
+		Session:            aws.String(verifyInformation.Session),
+	}
+	verifyResponse, err := cognitoClient.CognitoClient.VerifySoftwareToken(verifyToken)
+	if err != nil {
+		log.Println("Error verifying the 2FA token", err)
+		return err, nil
+	}
+	return nil, verifyResponse
+}
+
+func (cognitoClient *awsCognitoClient) Respond2FAChallenge(challengeResponse *apiModels.RespondChallenge) (error, *cognito.RespondToAuthChallengeOutput) {
+	userInformation := &models.UserCredentials{UserName: challengeResponse.UserName}
+	secretHash := utils.CreateSecretHash(userInformation)
+
+	authChallengeParameters := &cognito.RespondToAuthChallengeInput{
+		Session:       aws.String(challengeResponse.Session),
+		ChallengeName: aws.String(challengeResponse.ChallengeName),
+		ChallengeResponses: aws.StringMap(map[string]string{
+			"USERNAME":                challengeResponse.UserName,
+			"SOFTWARE_TOKEN_MFA_CODE": challengeResponse.Token2FA,
+			"SECRET_HASH":             secretHash,
+		}),
+		ClientId: aws.String(cognitoClient.AppClientId),
+	}
+	authChallengeResponse, err := cognitoClient.CognitoClient.RespondToAuthChallenge(authChallengeParameters)
+	if err != nil {
+		log.Println("Error sending the 2FA challenge token", err)
+		return err, nil
+	}
+	return nil, authChallengeResponse
 }

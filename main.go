@@ -17,6 +17,10 @@ func main() {
 	r.Post("/changePassword", handlers.HandleChangePassword)
 	r.Post("/reSendVerificationCode", handlers.HandleReSendVerificationCode)
 	r.Post("/signOut", handlers.HandleSignOut)
+	r.Post("/set2FA", handlers.HandleSet2FA)
+	r.Post("/associateToken", handlers.HandleAssociateSoftwareToken)
+	r.Post("/verifyToken", handlers.HandleVerifyToken)
+	r.Post("/respondChallenge", handlers.HandleRespondChallenge)
 
 	//Start server
 	log.Println("Server starting at port 3000")
