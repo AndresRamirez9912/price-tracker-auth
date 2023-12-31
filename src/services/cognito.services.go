@@ -3,6 +3,7 @@ package cognitoServices
 import (
 	"log"
 	apiModels "price-tracker-authentication/src/Api/models"
+	"price-tracker-authentication/src/constants"
 	"price-tracker-authentication/src/models"
 	"price-tracker-authentication/src/utils"
 	"strconv"
@@ -35,7 +36,6 @@ func NewCognitoClient(cognitoRegion string, cognitoAppClientID string) *awsCogni
 func (cognitoClient *awsCognitoClient) SignUp(userInformation *models.UserCredentials) (error, *cognito.SignUpOutput) {
 	secretHash := utils.CreateSecretHash(userInformation)
 
-	// Create the signUp object
 	user := &cognito.SignUpInput{
 		Username:   aws.String(userInformation.UserName),
 		Password:   aws.String(userInformation.Password),
@@ -43,25 +43,24 @@ func (cognitoClient *awsCognitoClient) SignUp(userInformation *models.UserCreden
 		SecretHash: aws.String(secretHash),
 		UserAttributes: []*cognito.AttributeType{
 			{
-				Name:  aws.String("name"),
+				Name:  aws.String(constants.USER_ATTRIBUTE_NAME),
 				Value: aws.String(userInformation.Name),
 			},
 			{
-				Name:  aws.String("email"),
+				Name:  aws.String(constants.USER_ATTRIBUTE_EMAIL),
 				Value: aws.String(userInformation.Email),
 			},
 			{
-				Name:  aws.String("locale"),
-				Value: aws.String("es_CO"),
+				Name:  aws.String(constants.USER_ATTRIBUTE_LOCALE),
+				Value: aws.String(constants.USER_ATTRIBUTE_ES_CO),
 			},
 			{
-				Name:  aws.String("updated_at"),
+				Name:  aws.String(constants.USER_ATTRIBUTE_UPDATED_AT),
 				Value: aws.String(strconv.FormatInt(time.Now().Unix(), 10)),
 			},
 		},
 	}
 
-	// SingUp the user
 	result, err := cognitoClient.CognitoClient.SignUp(user)
 	if err != nil {
 		return err, nil
@@ -90,12 +89,12 @@ func (cognitoClient *awsCognitoClient) LogIn(userInformation *models.UserCredent
 	secretHash := utils.CreateSecretHash(userInformation)
 
 	confirmUser := &cognito.InitiateAuthInput{
-		AuthFlow: aws.String("USER_PASSWORD_AUTH"),
+		AuthFlow: aws.String(constants.USER_PASSWORD_AUTH_FLOW),
 		ClientId: aws.String(cognitoClient.AppClientId),
 		AuthParameters: aws.StringMap(map[string]string{
-			"USERNAME":    userInformation.UserName,
-			"PASSWORD":    userInformation.Password,
-			"SECRET_HASH": secretHash,
+			constants.USER_NAME_MAP: userInformation.UserName,
+			constants.PASSWORD:      userInformation.Password,
+			constants.SECRET_HASH:   secretHash,
 		}),
 	}
 	signInResponse, err := cognitoClient.CognitoClient.InitiateAuth(confirmUser)
@@ -205,9 +204,9 @@ func (cognitoClient *awsCognitoClient) Respond2FAChallenge(challengeResponse *ap
 		Session:       aws.String(challengeResponse.Session),
 		ChallengeName: aws.String(challengeResponse.ChallengeName),
 		ChallengeResponses: aws.StringMap(map[string]string{
-			"USERNAME":                challengeResponse.UserName,
-			"SOFTWARE_TOKEN_MFA_CODE": challengeResponse.Token2FA,
-			"SECRET_HASH":             secretHash,
+			constants.USER_NAME_MAP:           challengeResponse.UserName,
+			constants.SOFTWARE_TOKEN_MFA_CODE: challengeResponse.Token2FA,
+			constants.SECRET_HASH:             secretHash,
 		}),
 		ClientId: aws.String(cognitoClient.AppClientId),
 	}

@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 	apiModels "price-tracker-authentication/src/Api/models"
+	"price-tracker-authentication/src/constants"
 	"price-tracker-authentication/src/models"
 	cognitoServices "price-tracker-authentication/src/services"
 	"price-tracker-authentication/src/utils"
@@ -16,10 +17,10 @@ func HandleSignUpUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cognitoClient := cognitoServices.NewCognitoClient("us-east-2", "5k1nhiok061928quq6ql8lcg96")
+	cognitoClient := cognitoServices.NewCognitoClient(constants.AWS_COGNITO_REGION, constants.COGNITO_APPCLIENT_ID)
 	err, signUpResponse := cognitoClient.SignUp(user)
 
-	w.Header().Add("content-Type", "application/json")
+	w.Header().Add(constants.CONTENT_TYPE, constants.APPLICATION_JSON)
 	if err != nil {
 		utils.SendErrorResponse(w, err)
 	}
@@ -35,10 +36,10 @@ func HandleLogInUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cognitoClient := cognitoServices.NewCognitoClient("us-east-2", "5k1nhiok061928quq6ql8lcg96")
+	cognitoClient := cognitoServices.NewCognitoClient(constants.AWS_COGNITO_REGION, constants.COGNITO_APPCLIENT_ID)
 	err, logInResponse := cognitoClient.LogIn(user)
 
-	w.Header().Add("content-Type", "application/json")
+	w.Header().Add(constants.CONTENT_TYPE, constants.APPLICATION_JSON)
 	if err != nil {
 		utils.SendErrorResponse(w, err)
 		return
@@ -48,16 +49,16 @@ func HandleLogInUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleVerifyUser(w http.ResponseWriter, r *http.Request) {
-	userName := r.URL.Query().Get("userName")
-	confirmationCode := r.URL.Query().Get("confirmationCode")
+	userName := r.URL.Query().Get(constants.USER_NAME)
+	confirmationCode := r.URL.Query().Get(constants.CONFIRMATION_CODE)
 	user := &models.UserCredentials{
 		UserName: userName,
 	}
 
-	cognitoClient := cognitoServices.NewCognitoClient("us-east-2", "5k1nhiok061928quq6ql8lcg96")
+	cognitoClient := cognitoServices.NewCognitoClient(constants.AWS_COGNITO_REGION, constants.COGNITO_APPCLIENT_ID)
 	err, confirmResponse := cognitoClient.ConfirmUser(user, confirmationCode)
 
-	w.Header().Add("content-Type", "application/json")
+	w.Header().Add(constants.CONTENT_TYPE, constants.APPLICATION_JSON)
 	if err != nil {
 		utils.SendErrorResponse(w, err)
 		return
@@ -71,10 +72,10 @@ func HandleChangePassword(w http.ResponseWriter, r *http.Request) {
 	changePassword := &apiModels.ChangePasswordRequest{}
 	err := utils.GetUserBodyRequest(r, changePassword)
 
-	cognitoClient := cognitoServices.NewCognitoClient("us-east-2", "5k1nhiok061928quq6ql8lcg96")
+	cognitoClient := cognitoServices.NewCognitoClient(constants.AWS_COGNITO_REGION, constants.COGNITO_APPCLIENT_ID)
 	err, changePasswordResponse := cognitoClient.ChangePassword(changePassword.UserInformation, changePassword.NewPassword)
 
-	w.Header().Add("content-Type", "application/json")
+	w.Header().Add(constants.CONTENT_TYPE, constants.APPLICATION_JSON)
 	if err != nil {
 		utils.SendErrorResponse(w, err)
 		return
@@ -84,15 +85,15 @@ func HandleChangePassword(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleReSendVerificationCode(w http.ResponseWriter, r *http.Request) {
-	userName := r.URL.Query().Get("userName")
+	userName := r.URL.Query().Get(constants.USER_NAME)
 	user := &models.UserCredentials{
 		UserName: userName,
 	}
 
-	cognitoClient := cognitoServices.NewCognitoClient("us-east-2", "5k1nhiok061928quq6ql8lcg96")
+	cognitoClient := cognitoServices.NewCognitoClient(constants.AWS_COGNITO_REGION, constants.COGNITO_APPCLIENT_ID)
 	err, reSendResponse := cognitoClient.ReSendConfirmationCode(user)
 
-	w.Header().Add("content-Type", "application/json")
+	w.Header().Add(constants.CONTENT_TYPE, constants.APPLICATION_JSON)
 	if err != nil {
 		utils.SendErrorResponse(w, err)
 		return
@@ -102,12 +103,12 @@ func HandleReSendVerificationCode(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleSignOut(w http.ResponseWriter, r *http.Request) {
-	accessToken := r.URL.Query().Get("accessToken")
+	accessToken := r.URL.Query().Get(constants.ACCESS_TOKEN)
 
-	cognitoClient := cognitoServices.NewCognitoClient("us-east-2", "5k1nhiok061928quq6ql8lcg96")
+	cognitoClient := cognitoServices.NewCognitoClient(constants.AWS_COGNITO_REGION, constants.COGNITO_APPCLIENT_ID)
 	err, signOutResponse := cognitoClient.SignOut(accessToken)
 
-	w.Header().Add("content-Type", "application/json")
+	w.Header().Add(constants.CONTENT_TYPE, constants.APPLICATION_JSON)
 	if err != nil {
 		utils.SendErrorResponse(w, err)
 		return
@@ -117,12 +118,12 @@ func HandleSignOut(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleSet2FA(w http.ResponseWriter, r *http.Request) {
-	accessToken := r.URL.Query().Get("accessToken")
+	accessToken := r.URL.Query().Get(constants.ACCESS_TOKEN)
 
-	cognitoClient := cognitoServices.NewCognitoClient("us-east-2", "5k1nhiok061928quq6ql8lcg96")
+	cognitoClient := cognitoServices.NewCognitoClient(constants.AWS_COGNITO_REGION, constants.COGNITO_APPCLIENT_ID)
 	err, set2FAResponse := cognitoClient.Set2FAPreference(accessToken)
 
-	w.Header().Add("content-Type", "application/json")
+	w.Header().Add(constants.CONTENT_TYPE, constants.APPLICATION_JSON)
 	if err != nil {
 		utils.SendErrorResponse(w, err)
 		return
@@ -132,12 +133,12 @@ func HandleSet2FA(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleAssociateSoftwareToken(w http.ResponseWriter, r *http.Request) {
-	accessToken := r.URL.Query().Get("accessToken")
+	accessToken := r.URL.Query().Get(constants.ACCESS_TOKEN)
 
-	cognitoClient := cognitoServices.NewCognitoClient("us-east-2", "5k1nhiok061928quq6ql8lcg96")
+	cognitoClient := cognitoServices.NewCognitoClient(constants.AWS_COGNITO_REGION, constants.COGNITO_APPCLIENT_ID)
 	err, associateResponse := cognitoClient.AssociateSoftwareToken(accessToken)
 
-	w.Header().Add("content-Type", "application/json")
+	w.Header().Add(constants.CONTENT_TYPE, constants.APPLICATION_JSON)
 	if err != nil {
 		utils.SendErrorResponse(w, err)
 		return
@@ -151,10 +152,10 @@ func HandleVerifyToken(w http.ResponseWriter, r *http.Request) {
 	err := utils.GetUserBodyRequest(r, verifyToken)
 	defer r.Body.Close()
 
-	cognitoClient := cognitoServices.NewCognitoClient("us-east-2", "5k1nhiok061928quq6ql8lcg96")
+	cognitoClient := cognitoServices.NewCognitoClient(constants.AWS_COGNITO_REGION, constants.COGNITO_APPCLIENT_ID)
 	err, associateResponse := cognitoClient.Verify2FAToken(verifyToken)
 
-	w.Header().Add("content-Type", "application/json")
+	w.Header().Add(constants.CONTENT_TYPE, constants.APPLICATION_JSON)
 	if err != nil {
 		utils.SendErrorResponse(w, err)
 		return
@@ -168,10 +169,10 @@ func HandleRespondChallenge(w http.ResponseWriter, r *http.Request) {
 	err := utils.GetUserBodyRequest(r, respondChallenge)
 	defer r.Body.Close()
 
-	cognitoClient := cognitoServices.NewCognitoClient("us-east-2", "5k1nhiok061928quq6ql8lcg96")
+	cognitoClient := cognitoServices.NewCognitoClient(constants.AWS_COGNITO_REGION, constants.COGNITO_APPCLIENT_ID)
 	err, challengeResponse := cognitoClient.Respond2FAChallenge(respondChallenge)
 
-	w.Header().Add("content-Type", "application/json")
+	w.Header().Add(constants.CONTENT_TYPE, constants.APPLICATION_JSON)
 	if err != nil {
 		utils.SendErrorResponse(w, err)
 		return
