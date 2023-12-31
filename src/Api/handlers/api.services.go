@@ -82,3 +82,36 @@ func HandleChangePassword(w http.ResponseWriter, r *http.Request) {
 
 	utils.SendSuccessResponse(w, changePasswordResponse, http.StatusOK)
 }
+
+func HandleReSendVerificationCode(w http.ResponseWriter, r *http.Request) {
+	userName := r.URL.Query().Get("userName")
+	user := &models.UserCredentials{
+		UserName: userName,
+	}
+
+	cognitoClient := cognitoServices.NewCognitoClient("us-east-2", "5k1nhiok061928quq6ql8lcg96")
+	err, reSendResponse := cognitoClient.ReSendConfirmationCode(user)
+
+	w.Header().Add("content-Type", "application/json")
+	if err != nil {
+		utils.SendErrorResponse(w, err)
+		return
+	}
+
+	utils.SendSuccessResponse(w, reSendResponse, http.StatusOK)
+}
+
+func HandleSignOut(w http.ResponseWriter, r *http.Request) {
+	accessToken := r.URL.Query().Get("accessToken")
+
+	cognitoClient := cognitoServices.NewCognitoClient("us-east-2", "5k1nhiok061928quq6ql8lcg96")
+	err, signOutResponse := cognitoClient.SignOut(accessToken)
+
+	w.Header().Add("content-Type", "application/json")
+	if err != nil {
+		utils.SendErrorResponse(w, err)
+		return
+	}
+
+	utils.SendSuccessResponse(w, signOutResponse, http.StatusOK)
+}

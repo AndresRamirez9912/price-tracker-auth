@@ -124,3 +124,31 @@ func (cognitoClient *awsCognitoClient) ChangePassword(userInformation *models.Us
 	}
 	return nil, true
 }
+
+func (cognitoClient *awsCognitoClient) ReSendConfirmationCode(userInformation *models.UserCredentials) (error, *cognito.ResendConfirmationCodeOutput) {
+	secretHash := utils.CreateSecretHash(userInformation)
+
+	resendConfirmation := &cognito.ResendConfirmationCodeInput{
+		ClientId:   aws.String(cognitoClient.AppClientId),
+		SecretHash: aws.String(secretHash),
+		Username:   aws.String(userInformation.UserName),
+	}
+	response, err := cognitoClient.CognitoClient.ResendConfirmationCode(resendConfirmation)
+	if err != nil {
+		log.Println("Error re-sending the user's verification code", err)
+		return err, nil
+	}
+	return nil, response
+}
+
+func (cognitoClient *awsCognitoClient) SignOut(accessToken string) (error, bool) {
+	signOut := &cognito.GlobalSignOutInput{
+		AccessToken: aws.String(accessToken),
+	}
+	_, err := cognitoClient.CognitoClient.GlobalSignOut(signOut)
+	if err != nil {
+		log.Println("Error signing out the user", err)
+		return err, false
+	}
+	return nil, true
+}
