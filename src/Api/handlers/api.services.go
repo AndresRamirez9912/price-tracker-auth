@@ -148,7 +148,7 @@ func HandleAssociateSoftwareToken(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleVerifyToken(w http.ResponseWriter, r *http.Request) {
-	verifyToken := &apiModels.Verify2FAToken{}
+	verifyToken := &apiModels.Verify2FATokenRequest{}
 	err := utils.GetUserBodyRequest(r, verifyToken)
 	defer r.Body.Close()
 
@@ -165,7 +165,7 @@ func HandleVerifyToken(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleRespondChallenge(w http.ResponseWriter, r *http.Request) {
-	respondChallenge := &apiModels.RespondChallenge{}
+	respondChallenge := &apiModels.RespondChallengeRequest{}
 	err := utils.GetUserBodyRequest(r, respondChallenge)
 	defer r.Body.Close()
 
@@ -179,4 +179,39 @@ func HandleRespondChallenge(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.SendSuccessResponse(w, challengeResponse, http.StatusOK)
+}
+
+func HandleForgotPassword(w http.ResponseWriter, r *http.Request) {
+	respondChallenge := &models.UserCredentials{}
+	err := utils.GetUserBodyRequest(r, respondChallenge)
+	defer r.Body.Close()
+
+	cognitoClient := cognitoServices.NewCognitoClient(constants.AWS_COGNITO_REGION, constants.COGNITO_APPCLIENT_ID)
+	err, forgotPasswordResponse := cognitoClient.ForgotPassword(respondChallenge)
+
+	w.Header().Add(constants.CONTENT_TYPE, constants.APPLICATION_JSON)
+	if err != nil {
+		utils.SendErrorResponse(w, err)
+		return
+	}
+
+	utils.SendSuccessResponse(w, forgotPasswordResponse, http.StatusOK)
+}
+
+func HandleConfirmForgotPassword(w http.ResponseWriter, r *http.Request) {
+	confirmationCode := r.URL.Query().Get(constants.CONFIRMATION_CODE)
+	respondForget := &apiModels.ChangePasswordRequest{}
+	err := utils.GetUserBodyRequest(r, respondForget)
+	defer r.Body.Close()
+
+	cognitoClient := cognitoServices.NewCognitoClient(constants.AWS_COGNITO_REGION, constants.COGNITO_APPCLIENT_ID)
+	err, ConfirmforgotPasswordResponse := cognitoClient.ConfirmForgotPassword(respondForget, confirmationCode)
+
+	w.Header().Add(constants.CONTENT_TYPE, constants.APPLICATION_JSON)
+	if err != nil {
+		utils.SendErrorResponse(w, err)
+		return
+	}
+
+	utils.SendSuccessResponse(w, ConfirmforgotPasswordResponse, http.StatusOK)
 }

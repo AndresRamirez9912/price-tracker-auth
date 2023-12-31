@@ -18,14 +18,14 @@ type ChangePasswordRequest struct {
 	NewPassword     string                  `json:"newPassword"`
 }
 
-type Verify2FAToken struct {
+type Verify2FATokenRequest struct {
 	AccessToken        string `json:"accessToken"`
 	FriendlyDeviceName string `json:"friendlyDeviceName"`
 	Session            string `json:"session"`
 	UserCode           string `json:"userCode"`
 }
 
-type RespondChallenge struct {
+type RespondChallengeRequest struct {
 	ChallengeName string `json:"challengeName"`
 	Session       string `json:"session"`
 	UserName      string `json:"userName"`

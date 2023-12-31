@@ -1,6 +1,7 @@
 package cognitoServices
 
 import (
+	"fmt"
 	"log"
 	apiModels "price-tracker-authentication/src/Api/models"
 	"price-tracker-authentication/src/constants"
@@ -181,7 +182,7 @@ func (cognitoClient *awsCognitoClient) AssociateSoftwareToken(accessToken string
 	return nil, associateResponse
 }
 
-func (cognitoClient *awsCognitoClient) Verify2FAToken(verifyInformation *apiModels.Verify2FAToken) (error, *cognito.VerifySoftwareTokenOutput) {
+func (cognitoClient *awsCognitoClient) Verify2FAToken(verifyInformation *apiModels.Verify2FATokenRequest) (error, *cognito.VerifySoftwareTokenOutput) {
 	verifyToken := &cognito.VerifySoftwareTokenInput{
 		AccessToken:        aws.String(verifyInformation.AccessToken),
 		UserCode:           aws.String(verifyInformation.UserCode),
@@ -196,7 +197,7 @@ func (cognitoClient *awsCognitoClient) Verify2FAToken(verifyInformation *apiMode
 	return nil, verifyResponse
 }
 
-func (cognitoClient *awsCognitoClient) Respond2FAChallenge(challengeResponse *apiModels.RespondChallenge) (error, *cognito.RespondToAuthChallengeOutput) {
+func (cognitoClient *awsCognitoClient) Respond2FAChallenge(challengeResponse *apiModels.RespondChallengeRequest) (error, *cognito.RespondToAuthChallengeOutput) {
 	userInformation := &models.UserCredentials{UserName: challengeResponse.UserName}
 	secretHash := utils.CreateSecretHash(userInformation)
 
@@ -216,4 +217,39 @@ func (cognitoClient *awsCognitoClient) Respond2FAChallenge(challengeResponse *ap
 		return err, nil
 	}
 	return nil, authChallengeResponse
+}
+
+func (cognitoClient *awsCognitoClient) ForgotPassword(userInformation *models.UserCredentials) (error, *cognito.ForgotPasswordOutput) {
+	secretHash := utils.CreateSecretHash(userInformation)
+
+	forgotPasswordParametters := &cognito.ForgotPasswordInput{
+		ClientId:   aws.String(cognitoClient.AppClientId),
+		SecretHash: aws.String(secretHash),
+		Username:   aws.String(userInformation.UserName),
+	}
+	forgotPasswordResponse, err := cognitoClient.CognitoClient.ForgotPassword(forgotPasswordParametters)
+	if err != nil {
+		log.Println("Error trying to execute forgot password ", err)
+		return err, nil
+	}
+	return nil, forgotPasswordResponse
+}
+
+func (cognitoClient *awsCognitoClient) ConfirmForgotPassword(passwordInformation *apiModels.ChangePasswordRequest, confirmationCode string) (error, bool) {
+	secretHash := utils.CreateSecretHash(passwordInformation.UserInformation)
+	fmt.Println(passwordInformation)
+
+	forgotPasswordParametters := &cognito.ConfirmForgotPasswordInput{
+		ClientId:         aws.String(cognitoClient.AppClientId),
+		SecretHash:       aws.String(secretHash),
+		Username:         aws.String(passwordInformation.UserInformation.UserName),
+		ConfirmationCode: aws.String(confirmationCode),
+		Password:         aws.String(passwordInformation.NewPassword),
+	}
+	_, err := cognitoClient.CognitoClient.ConfirmForgotPassword(forgotPasswordParametters)
+	if err != nil {
+		log.Println("Error trying to confirm forgot password", err)
+		return err, false
+	}
+	return nil, true
 }

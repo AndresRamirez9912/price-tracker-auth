@@ -21,6 +21,8 @@ func main() {
 	r.Post("/associateToken", handlers.HandleAssociateSoftwareToken)
 	r.Post("/verifyToken", handlers.HandleVerifyToken)
 	r.Post("/respondChallenge", handlers.HandleRespondChallenge)
+	r.Post("/forgotPassword", handlers.HandleForgotPassword)
+	r.Post("/confirmForgotPassword", handlers.HandleConfirmForgotPassword)
 
 	//Start server
 	log.Println("Server starting at port 3000")
