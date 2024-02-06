@@ -23,6 +23,7 @@ func HandleSignUpUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add(constants.CONTENT_TYPE, constants.APPLICATION_JSON)
 	if err != nil {
 		utils.SendErrorResponse(w, err)
+		return
 	}
 
 	utils.SendSuccessResponse(w, signUpResponse, http.StatusCreated)
@@ -214,4 +215,21 @@ func HandleConfirmForgotPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.SendSuccessResponse(w, ConfirmforgotPasswordResponse, http.StatusOK)
+}
+
+func HandleGetUser(w http.ResponseWriter, r *http.Request) {
+	getUserBody := &apiModels.GetUserRequest{}
+	err := utils.GetUserBodyRequest(r, getUserBody)
+	defer r.Body.Close()
+
+	cognitoClient := cognitoServices.NewCognitoClient(constants.AWS_COGNITO_REGION, constants.COGNITO_APPCLIENT_ID)
+	err, getUserResponse := cognitoClient.GetUserByJWT(getUserBody.AccessToken)
+
+	w.Header().Add(constants.CONTENT_TYPE, constants.APPLICATION_JSON)
+	if err != nil {
+		utils.SendErrorResponse(w, err)
+		return
+	}
+
+	utils.SendSuccessResponse(w, getUserResponse, http.StatusOK)
 }

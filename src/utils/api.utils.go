@@ -25,8 +25,8 @@ func GetUserBodyRequest(r *http.Request, model any) error {
 }
 
 func SendErrorResponse(w http.ResponseWriter, err error) {
-	w.WriteHeader(http.StatusBadRequest)
-	failResponse := &apiModels.ErrorResponse{
+	w.WriteHeader(http.StatusOK)
+	failResponse := &apiModels.GeneralResponse{
 		ErrorCode:    400,
 		ErrorMessage: err.Error(),
 		Success:      false,
@@ -38,7 +38,7 @@ func SendErrorResponse(w http.ResponseWriter, err error) {
 
 func SendSuccessResponse(w http.ResponseWriter, response any, statusCode int) {
 	w.WriteHeader(statusCode)
-	successResponse := &apiModels.SuccesResponse{
+	successResponse := &apiModels.GeneralResponse{
 		Success:  true,
 		Response: response,
 	}

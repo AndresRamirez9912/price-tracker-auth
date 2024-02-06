@@ -253,3 +253,16 @@ func (cognitoClient *awsCognitoClient) ConfirmForgotPassword(passwordInformation
 	}
 	return nil, true
 }
+
+func (cognitoClient *awsCognitoClient) GetUserByJWT(accessToken string) (error, *cognito.GetUserOutput) {
+	getUserParameters := &cognito.GetUserInput{
+		AccessToken: &accessToken,
+	}
+
+	getUserResponse, err := cognitoClient.CognitoClient.GetUser(getUserParameters)
+	if err != nil {
+		log.Println("Error getting the user parameters ", err)
+		return err, nil
+	}
+	return nil, getUserResponse
+}
