@@ -1,0 +1,29 @@
+# Define the docker compose version
+version: '3.9'
+
+# Add the images of my application
+services: 
+  # Configuration of my current project
+  price-tracking-auth:
+    # Specify the address of the dockerfile
+    build: 
+      context: .
+      dockerfile: dockerfile
+
+    # Define the name of the image of my app
+    image: price-tracking-auth:latest
+    
+    # Define the container name of my service
+    container_name: price-tracking-auth
+    
+    # Definy the port mapping
+    ports:
+      - "3001:3001"
+    networks:
+      - price-tracking-network
+
+  
+networks:
+  price-tracking-network:
+    name: price-tracking-network
+
