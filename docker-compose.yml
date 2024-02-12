@@ -15,6 +15,12 @@ services:
     
     # Define the container name of my service
     container_name: price-tracking-auth
+
+    environment:
+      - PORT=${PORT}
+      - AWS_COGNITO_REGION=${AWS_COGNITO_REGION}
+      - COGNITO_APPCLIENT_ID=${COGNITO_APPCLIENT_ID}
+      - SECRET_HASH=${SECRET_HASH}
     
     # Definy the port mapping
     ports:

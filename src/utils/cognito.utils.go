@@ -4,13 +4,15 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
+	"os"
+	"price-tracker-authentication/src/constants"
 	"price-tracker-authentication/src/models"
 )
 
 func CreateSecretHash(userInformation *models.UserCredentials) string {
-	secret := "lgp5bmngniq9hbno40qoob0db3oh5nn9pmgqeiamp2ebh4tc0jn"
+	secret := os.Getenv(constants.SECRET_HASH)
 	hmac := hmac.New(sha256.New, []byte(secret))
-	hmac.Write([]byte(userInformation.UserName + "5k1nhiok061928quq6ql8lcg96"))
+	hmac.Write([]byte(userInformation.UserName + os.Getenv(constants.COGNITO_APPCLIENT_ID)))
 	hmacResult := hmac.Sum(nil)
 	return base64.StdEncoding.EncodeToString(hmacResult)
 }

@@ -72,6 +72,10 @@ func HandleChangePassword(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	changePassword := &apiModels.ChangePasswordRequest{}
 	err := utils.GetUserBodyRequest(r, changePassword)
+	if err != nil {
+		utils.SendErrorResponse(w, err)
+		return
+	}
 
 	cognitoClient := cognitoServices.NewCognitoClient(constants.AWS_COGNITO_REGION, constants.COGNITO_APPCLIENT_ID)
 	err, changePasswordResponse := cognitoClient.ChangePassword(changePassword.UserInformation, changePassword.NewPassword)
@@ -151,6 +155,10 @@ func HandleAssociateSoftwareToken(w http.ResponseWriter, r *http.Request) {
 func HandleVerifyToken(w http.ResponseWriter, r *http.Request) {
 	verifyToken := &apiModels.Verify2FATokenRequest{}
 	err := utils.GetUserBodyRequest(r, verifyToken)
+	if err != nil {
+		utils.SendErrorResponse(w, err)
+		return
+	}
 	defer r.Body.Close()
 
 	cognitoClient := cognitoServices.NewCognitoClient(constants.AWS_COGNITO_REGION, constants.COGNITO_APPCLIENT_ID)
@@ -168,6 +176,10 @@ func HandleVerifyToken(w http.ResponseWriter, r *http.Request) {
 func HandleRespondChallenge(w http.ResponseWriter, r *http.Request) {
 	respondChallenge := &apiModels.RespondChallengeRequest{}
 	err := utils.GetUserBodyRequest(r, respondChallenge)
+	if err != nil {
+		utils.SendErrorResponse(w, err)
+		return
+	}
 	defer r.Body.Close()
 
 	cognitoClient := cognitoServices.NewCognitoClient(constants.AWS_COGNITO_REGION, constants.COGNITO_APPCLIENT_ID)
@@ -185,6 +197,10 @@ func HandleRespondChallenge(w http.ResponseWriter, r *http.Request) {
 func HandleForgotPassword(w http.ResponseWriter, r *http.Request) {
 	respondChallenge := &models.UserCredentials{}
 	err := utils.GetUserBodyRequest(r, respondChallenge)
+	if err != nil {
+		utils.SendErrorResponse(w, err)
+		return
+	}
 	defer r.Body.Close()
 
 	cognitoClient := cognitoServices.NewCognitoClient(constants.AWS_COGNITO_REGION, constants.COGNITO_APPCLIENT_ID)
@@ -203,6 +219,10 @@ func HandleConfirmForgotPassword(w http.ResponseWriter, r *http.Request) {
 	confirmationCode := r.URL.Query().Get(constants.CONFIRMATION_CODE)
 	respondForget := &apiModels.ChangePasswordRequest{}
 	err := utils.GetUserBodyRequest(r, respondForget)
+	if err != nil {
+		utils.SendErrorResponse(w, err)
+		return
+	}
 	defer r.Body.Close()
 
 	cognitoClient := cognitoServices.NewCognitoClient(constants.AWS_COGNITO_REGION, constants.COGNITO_APPCLIENT_ID)
@@ -220,6 +240,10 @@ func HandleConfirmForgotPassword(w http.ResponseWriter, r *http.Request) {
 func HandleGetUser(w http.ResponseWriter, r *http.Request) {
 	getUserBody := &apiModels.GetUserRequest{}
 	err := utils.GetUserBodyRequest(r, getUserBody)
+	if err != nil {
+		utils.SendErrorResponse(w, err)
+		return
+	}
 	defer r.Body.Close()
 
 	cognitoClient := cognitoServices.NewCognitoClient(constants.AWS_COGNITO_REGION, constants.COGNITO_APPCLIENT_ID)

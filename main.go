@@ -3,13 +3,23 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 	"price-tracker-authentication/src/Api/handlers"
+	"price-tracker-authentication/src/constants"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	// Read the .env variables
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Println("Error loading the .env variables", err)
+		return
+	}
+
 	// Create router
 	r := chi.NewRouter()
 
@@ -38,6 +48,6 @@ func main() {
 	r.Post("/api/confirmForgotPassword", handlers.HandleConfirmForgotPassword)
 
 	//Start server
-	log.Println("Server starting at port 3001")
-	http.ListenAndServe(":3001", r)
+	log.Println("Server starting at port", os.Getenv(constants.PORT))
+	http.ListenAndServe(os.Getenv(constants.PORT), r)
 }
