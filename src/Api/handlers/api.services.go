@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"os"
 	apiModels "price-tracker-authentication/src/Api/models"
 	"price-tracker-authentication/src/constants"
 	"price-tracker-authentication/src/models"
@@ -17,7 +18,7 @@ func HandleSignUpUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cognitoClient := cognitoServices.NewCognitoClient(constants.AWS_COGNITO_REGION, constants.COGNITO_APPCLIENT_ID)
+	cognitoClient := cognitoServices.NewCognitoClient(os.Getenv(constants.AWS_COGNITO_REGION), os.Getenv(constants.COGNITO_APPCLIENT_ID))
 	err, signUpResponse := cognitoClient.SignUp(user)
 
 	w.Header().Add(constants.CONTENT_TYPE, constants.APPLICATION_JSON)
@@ -37,7 +38,7 @@ func HandleLogInUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cognitoClient := cognitoServices.NewCognitoClient(constants.AWS_COGNITO_REGION, constants.COGNITO_APPCLIENT_ID)
+	cognitoClient := cognitoServices.NewCognitoClient(os.Getenv(constants.AWS_COGNITO_REGION), os.Getenv(constants.COGNITO_APPCLIENT_ID))
 	err, logInResponse := cognitoClient.LogIn(user)
 
 	w.Header().Add(constants.CONTENT_TYPE, constants.APPLICATION_JSON)
@@ -56,7 +57,7 @@ func HandleVerifyUser(w http.ResponseWriter, r *http.Request) {
 		UserName: userName,
 	}
 
-	cognitoClient := cognitoServices.NewCognitoClient(constants.AWS_COGNITO_REGION, constants.COGNITO_APPCLIENT_ID)
+	cognitoClient := cognitoServices.NewCognitoClient(os.Getenv(constants.AWS_COGNITO_REGION), os.Getenv(constants.COGNITO_APPCLIENT_ID))
 	err, confirmResponse := cognitoClient.ConfirmUser(user, confirmationCode)
 
 	w.Header().Add(constants.CONTENT_TYPE, constants.APPLICATION_JSON)
@@ -77,7 +78,7 @@ func HandleChangePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cognitoClient := cognitoServices.NewCognitoClient(constants.AWS_COGNITO_REGION, constants.COGNITO_APPCLIENT_ID)
+	cognitoClient := cognitoServices.NewCognitoClient(os.Getenv(constants.AWS_COGNITO_REGION), os.Getenv(constants.COGNITO_APPCLIENT_ID))
 	err, changePasswordResponse := cognitoClient.ChangePassword(changePassword.UserInformation, changePassword.NewPassword)
 
 	w.Header().Add(constants.CONTENT_TYPE, constants.APPLICATION_JSON)
@@ -95,7 +96,7 @@ func HandleReSendVerificationCode(w http.ResponseWriter, r *http.Request) {
 		UserName: userName,
 	}
 
-	cognitoClient := cognitoServices.NewCognitoClient(constants.AWS_COGNITO_REGION, constants.COGNITO_APPCLIENT_ID)
+	cognitoClient := cognitoServices.NewCognitoClient(os.Getenv(constants.AWS_COGNITO_REGION), os.Getenv(constants.COGNITO_APPCLIENT_ID))
 	err, reSendResponse := cognitoClient.ReSendConfirmationCode(user)
 
 	w.Header().Add(constants.CONTENT_TYPE, constants.APPLICATION_JSON)
@@ -110,7 +111,7 @@ func HandleReSendVerificationCode(w http.ResponseWriter, r *http.Request) {
 func HandleSignOut(w http.ResponseWriter, r *http.Request) {
 	accessToken := r.URL.Query().Get(constants.ACCESS_TOKEN)
 
-	cognitoClient := cognitoServices.NewCognitoClient(constants.AWS_COGNITO_REGION, constants.COGNITO_APPCLIENT_ID)
+	cognitoClient := cognitoServices.NewCognitoClient(os.Getenv(constants.AWS_COGNITO_REGION), os.Getenv(constants.COGNITO_APPCLIENT_ID))
 	err, signOutResponse := cognitoClient.SignOut(accessToken)
 
 	w.Header().Add(constants.CONTENT_TYPE, constants.APPLICATION_JSON)
@@ -125,7 +126,7 @@ func HandleSignOut(w http.ResponseWriter, r *http.Request) {
 func HandleSet2FA(w http.ResponseWriter, r *http.Request) {
 	accessToken := r.URL.Query().Get(constants.ACCESS_TOKEN)
 
-	cognitoClient := cognitoServices.NewCognitoClient(constants.AWS_COGNITO_REGION, constants.COGNITO_APPCLIENT_ID)
+	cognitoClient := cognitoServices.NewCognitoClient(os.Getenv(constants.AWS_COGNITO_REGION), os.Getenv(constants.COGNITO_APPCLIENT_ID))
 	err, set2FAResponse := cognitoClient.Set2FAPreference(accessToken)
 
 	w.Header().Add(constants.CONTENT_TYPE, constants.APPLICATION_JSON)
@@ -140,7 +141,7 @@ func HandleSet2FA(w http.ResponseWriter, r *http.Request) {
 func HandleAssociateSoftwareToken(w http.ResponseWriter, r *http.Request) {
 	accessToken := r.URL.Query().Get(constants.ACCESS_TOKEN)
 
-	cognitoClient := cognitoServices.NewCognitoClient(constants.AWS_COGNITO_REGION, constants.COGNITO_APPCLIENT_ID)
+	cognitoClient := cognitoServices.NewCognitoClient(os.Getenv(constants.AWS_COGNITO_REGION), os.Getenv(constants.COGNITO_APPCLIENT_ID))
 	err, associateResponse := cognitoClient.AssociateSoftwareToken(accessToken)
 
 	w.Header().Add(constants.CONTENT_TYPE, constants.APPLICATION_JSON)
@@ -161,7 +162,7 @@ func HandleVerifyToken(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	cognitoClient := cognitoServices.NewCognitoClient(constants.AWS_COGNITO_REGION, constants.COGNITO_APPCLIENT_ID)
+	cognitoClient := cognitoServices.NewCognitoClient(os.Getenv(constants.AWS_COGNITO_REGION), os.Getenv(constants.COGNITO_APPCLIENT_ID))
 	err, associateResponse := cognitoClient.Verify2FAToken(verifyToken)
 
 	w.Header().Add(constants.CONTENT_TYPE, constants.APPLICATION_JSON)
@@ -182,7 +183,7 @@ func HandleRespondChallenge(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	cognitoClient := cognitoServices.NewCognitoClient(constants.AWS_COGNITO_REGION, constants.COGNITO_APPCLIENT_ID)
+	cognitoClient := cognitoServices.NewCognitoClient(os.Getenv(constants.AWS_COGNITO_REGION), os.Getenv(constants.COGNITO_APPCLIENT_ID))
 	err, challengeResponse := cognitoClient.Respond2FAChallenge(respondChallenge)
 
 	w.Header().Add(constants.CONTENT_TYPE, constants.APPLICATION_JSON)
@@ -203,7 +204,7 @@ func HandleForgotPassword(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	cognitoClient := cognitoServices.NewCognitoClient(constants.AWS_COGNITO_REGION, constants.COGNITO_APPCLIENT_ID)
+	cognitoClient := cognitoServices.NewCognitoClient(os.Getenv(constants.AWS_COGNITO_REGION), os.Getenv(constants.COGNITO_APPCLIENT_ID))
 	err, forgotPasswordResponse := cognitoClient.ForgotPassword(respondChallenge)
 
 	w.Header().Add(constants.CONTENT_TYPE, constants.APPLICATION_JSON)
@@ -225,7 +226,7 @@ func HandleConfirmForgotPassword(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	cognitoClient := cognitoServices.NewCognitoClient(constants.AWS_COGNITO_REGION, constants.COGNITO_APPCLIENT_ID)
+	cognitoClient := cognitoServices.NewCognitoClient(os.Getenv(constants.AWS_COGNITO_REGION), os.Getenv(constants.COGNITO_APPCLIENT_ID))
 	err, ConfirmforgotPasswordResponse := cognitoClient.ConfirmForgotPassword(respondForget, confirmationCode)
 
 	w.Header().Add(constants.CONTENT_TYPE, constants.APPLICATION_JSON)
@@ -246,7 +247,7 @@ func HandleGetUser(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	cognitoClient := cognitoServices.NewCognitoClient(constants.AWS_COGNITO_REGION, constants.COGNITO_APPCLIENT_ID)
+	cognitoClient := cognitoServices.NewCognitoClient(os.Getenv(constants.AWS_COGNITO_REGION), os.Getenv(constants.COGNITO_APPCLIENT_ID))
 	err, getUserResponse := cognitoClient.GetUserByJWT(getUserBody.AccessToken)
 
 	w.Header().Add(constants.CONTENT_TYPE, constants.APPLICATION_JSON)
