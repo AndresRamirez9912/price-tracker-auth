@@ -20,13 +20,12 @@ func HandleSignUpUser(w http.ResponseWriter, r *http.Request) {
 
 	cognitoClient := cognitoServices.NewCognitoClient(os.Getenv(constants.AWS_COGNITO_REGION), os.Getenv(constants.COGNITO_APPCLIENT_ID))
 	err, signUpResponse := cognitoClient.SignUp(user)
-
-	w.Header().Add(constants.CONTENT_TYPE, constants.APPLICATION_JSON)
 	if err != nil {
 		utils.SendErrorResponse(w, err)
 		return
 	}
 
+	w.Header().Add(constants.CONTENT_TYPE, constants.APPLICATION_JSON)
 	utils.SendSuccessResponse(w, signUpResponse, http.StatusCreated)
 }
 
