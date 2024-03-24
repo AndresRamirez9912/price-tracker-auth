@@ -1,0 +1,23 @@
+  version: '3.9'
+
+  services: 
+    price-tracking-auth:
+      build: 
+        context: ../../
+        dockerfile: docker/local/dockerfile-local
+      image: price-tracking-auth:local    
+      container_name: price-tracking-auth
+      environment:
+        - PORT=${PORT}
+        - AWS_COGNITO_REGION=${AWS_COGNITO_REGION}
+        - COGNITO_APPCLIENT_ID=${COGNITO_APPCLIENT_ID}
+        - SECRET_HASH=${SECRET_HASH}
+      ports:
+        - "3001:3001"
+      networks:
+        - price-tracking-network
+
+  networks:
+    price-tracking-network:
+      name: price-tracking-network
+
