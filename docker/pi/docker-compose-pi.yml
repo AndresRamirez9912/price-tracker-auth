@@ -1,34 +1,22 @@
-# Define the docker compose version
 version: '3.9'
 
-# Add the images of my application
 services: 
-  # Configuration of my current project
   price-tracking-auth:
-    # Specify the address of the dockerfile
     build: 
-      context: .
-      dockerfile: dockerfile
-
-    # Define the name of the image of my app
-    image: price-tracking-auth:latest
-    
-    # Define the container name of my service
+      context: ../../
+      dockerfile: docker/local/dockerfile-pi
+    image: price-tracking-auth:pi
     container_name: price-tracking-auth
-
     environment:
       - PORT=${PORT}
       - AWS_COGNITO_REGION=${AWS_COGNITO_REGION}
       - COGNITO_APPCLIENT_ID=${COGNITO_APPCLIENT_ID}
       - SECRET_HASH=${SECRET_HASH}
-    
-    # Definy the port mapping
     ports:
       - "3001:3001"
     networks:
       - price-tracking-network
 
-  
 networks:
   price-tracking-network:
     name: price-tracking-network

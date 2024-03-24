@@ -9,17 +9,9 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
-	"github.com/joho/godotenv"
 )
 
 func main() {
-	// Read the .env variables
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Println("Error loading the .env variables", err)
-		return
-	}
-
 	// Create router
 	r := chi.NewRouter()
 

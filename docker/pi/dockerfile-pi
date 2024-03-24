@@ -1,0 +1,14 @@
+FROM golang:1.22-alpine AS builder
+WORKDIR /go/src/app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+# Build the project with cross-compilation for Linux/ARM64
+RUN GOOS=linux GOARCH=arm64 go build -o /go/bin/app 
+
+FROM alpine:latest
+WORKDIR /usr/local/bin/app
+COPY --from=builder /go/bin/app .
+EXPOSE 3001
+
+CMD ["app"]
